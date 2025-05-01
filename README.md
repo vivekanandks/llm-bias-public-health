@@ -2,9 +2,9 @@
 # Investigating the Existence of Bias in LLM-Based Code Generation for Public Health
 
 ## Objectives
-Adapt the FairCoder framework to evaluate bias in LLM-generated code for public health problem statements across different branches of healthcare.
+Adapt the FairCoder framework to evaluate bias in LLM-generated code for public health problem statements across different branches of public health.
 
-## Branches of Healthcare
+## Branches of Public Health
 1. **Epidemiology**
 2. **Global Health**
 3. **Health Policy**
