@@ -2,34 +2,32 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 
-# Create logs directory if it doesn't exist
-os.makedirs("logs", exist_ok=True)
+def get_logger(name="llm_bias_logger"):
+    # Ensure logs directory exists
+    log_dir = "logs"
+    os.makedirs(log_dir, exist_ok=True)
 
-# Define log file path
-LOG_FILE = "logs/project.log"
+    # Create a logger
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
 
-# Define logging format
-LOG_FORMAT = "%(asctime)s — %(levelname)s — %(name)s — %(message)s"
+    # Avoid adding handlers multiple times
+    if not logger.handlers:
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-# Create logger object
-logger = logging.getLogger("llm-bias")
-logger.setLevel(logging.DEBUG)  # Set to DEBUG to capture all types of logs
+        # File handler
+        file_handler = RotatingFileHandler(os.path.join(log_dir, 'llm_bias.log'),
+                                           maxBytes=1_000_000, backupCount=5)
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(logging.DEBUG)
 
-# --- File Handler with Rotation ---
-file_handler = RotatingFileHandler(
-    LOG_FILE,
-    maxBytes=1_000_000,  # 1 MB max file size
-    backupCount=3        # Keep up to 3 old log files
-)
-file_handler.setLevel(logging.INFO)
-file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+        # Console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        console_handler.setLevel(logging.INFO)
 
-# --- Console Handler ---
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)
-console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+        # Add handlers to logger
+        logger.addHandler(file_handler)
+        logger.addHandler(console_handler)
 
-# --- Attach handlers ---
-if not logger.handlers:  # Prevent adding multiple handlers if re-imported
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
+    return logger  # <-- this should be inside get_logger
