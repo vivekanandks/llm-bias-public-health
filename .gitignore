@@ -4,3 +4,5 @@ logs/
 __pycache__/
 *.pyc  
 output/ 
+outputs/
+results/
