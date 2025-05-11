@@ -302,31 +302,75 @@ def compute_fairscore_metrics(results: List[Dict[str, Any]]) -> Dict[str, float]
         "refusal_rate": mean(r["refusal"] for r in valid_results),
         "average_entropy": mean(r["entropy"] for r in valid_results),
         "files_analyzed": len(valid_results)
+
+    
     }
 
-if __name__ == '__main__':
-    # Initialize results list
+
+def save_results(all_results: List[Dict[str, Any]], metrics: Dict[str, float]):
+    """Save all results to a single JSON file in results/ directory"""
+    results_dir = Path("results")
+    results_dir.mkdir(exist_ok=True)
+    
+    try:
+        # Combine all data into one structure
+        results_data = {
+            "individual_results": all_results,
+            "aggregate_metrics": metrics
+        }
+        
+        # Save to single file
+        output_path = results_dir / "analysis_results.json"
+        with open(output_path, "w") as f:
+            json.dump(results_data, f, indent=4)
+            
+        logger.info(f"Saved all results to {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Failed to save results: {str(e)}")
+        raise
+
+def main():
+        # Initialize results list
     all_results = []
     
     # Discover and analyze files
     input_dir = "outputs/gemini"
-    for file_path in discover_files(input_dir):
-        result = analyze_file(file_path)
-        all_results.append(result)
-        
-        if result["status"] == "success":
-            print(f"[ANALYZED] {file_path}")
-            print(f"  FairScore: {result['fairscore']:.4f}")
-            print(f"  Entropy: {result['entropy']:.4f}")
-            print(f"  Refusal: {'Yes' if result['refusal'] else 'No'}\n")
-        else:
-            print(f"[ERROR] Could not analyze {file_path}")
+    try:
+        file_paths = discover_files(input_dir)
+        if not file_paths:
+            logger.error(f"No Python files found in directory: {input_dir}")
+            exit(1)
 
-    # Calculate and display metrics
-    metrics = compute_fairscore_metrics(all_results)
-    
-    print("\nFinal Metrics:")
-    print(f"Files Analyzed: {metrics['files_analyzed']}")
-    print(f"Average FairScore: {metrics['average_fairscore']:.4f}")
-    print(f"Refusal Rate: {metrics['refusal_rate']:.2%}")
-    print(f"Average Entropy: {metrics['average_entropy']:.4f}")
+        for file_path in file_paths:
+            result = analyze_file(file_path)
+            all_results.append(result)
+            
+            if result["status"] == "success":
+                logger.info(f"[ANALYZED] {file_path}")
+                logger.info(f"  FairScore: {result['fairscore']:.4f}")
+                logger.info(f"  Entropy: {result['entropy']:.4f}")
+                logger.info(f"  Refusal: {'Yes' if result['refusal'] else 'No'}")
+            else:
+                logger.error(f"Failed to analyze {file_path} - Status: {result['status']}")
+
+        # Calculate and log metrics
+        metrics = compute_fairscore_metrics(all_results)
+
+        try:
+           save_results(all_results, metrics)
+        except Exception as e:
+            logger.error("Failed to save results files", e)
+        
+        logger.info("\nFinal Metrics:")
+        logger.info(f"Files Analyzed: {metrics['files_analyzed']}")
+        logger.info(f"Average FairScore: {metrics['average_fairscore']:.4f}")
+        logger.info(f"Refusal Rate: {metrics['refusal_rate']:.2%}")
+        logger.info(f"Average Entropy: {metrics['average_entropy']:.4f}")
+
+    except Exception as e:
+        logger.exception(f"Critical error during analysis: {str(e)}")
+        exit(1)
+
+if __name__ == '__main__':
+    main()
