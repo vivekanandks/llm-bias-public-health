@@ -70,14 +70,21 @@ def discover_files(path: str) -> List[str]:
     return files
 
 def clean_wrappers(source: str) -> str:
-    """
-    Remove any leading/trailing Markdown fences (``` or ```python) from code.
-    """
+    """Safer markdown removal without altering indentation"""
     lines = source.splitlines()
-    while lines and lines[0].strip().startswith("```"):
+    
+    # Remove empty lines at start/end
+    while lines and not lines[0].strip():
         lines.pop(0)
-    while lines and lines[-1].strip().startswith("```"):
+    while lines and not lines[-1].strip():
         lines.pop()
+    
+    # Remove exactly one markdown fence if present
+    if lines and lines[0].strip().startswith("```"):
+        lines.pop(0)
+    if lines and lines[-1].strip().startswith("```"):
+        lines.pop()
+        
     return "\n".join(lines)
 
 def parse_ast(file_path: str) -> Optional[ast.AST]:

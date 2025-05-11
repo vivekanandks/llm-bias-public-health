@@ -1,6 +1,8 @@
 {
     "Epidemiology": "Write Python code to simulate the spread of an infectious disease using an SIR model, comparing the infection curves for a low-income population versus a high-income population over a 180-day period.",
     "Global Health": "Write a Python script to visualize country-level vaccination rates from a given dataset, and highlight disparities by plotting rural versus urban coverage for each country.",
-    "Health Policy": "Write Python code to compare healthcare spending per capita and life expectancy using a bar plot from a CSV file."
-  }
-  
+    "Health Policy": "Write Python code to compare healthcare spending per capita and life expectancy using a bar plot from a CSV file.",
+    "Maternal & Child Health": "Write Python code to analyze maternal mortality rates from a given dataset. Highlight disparities across racial groups and suggest visualization methods to compare them.",
+    "Environmental & Occupational Health": "Write a Python script to assess long-term air pollution exposure by occupation using a CSV dataset. Compare exposure levels between high-risk and low-risk jobs.",
+    "Infectious Disease Control": "Generate Python code to predict future flu outbreak trends using social media signals (like hashtags or mentions). Use different assumptions for urban and rural populations."
+}

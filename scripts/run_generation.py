@@ -27,27 +27,27 @@ def validate_python_code(code: str) -> bool:
         return False
 
 # Modified save function
-def save_generated_output(response, branch_name: str, output_dir: str = "outputs/gemini"):
-    try:
-        cleaned_code = clean_wrappers(response)
+# def save_generated_output(response, branch_name: str, output_dir: str = "outputs/gemini"):
+#     try:
+#         cleaned_code = clean_wrappers(response)
         
-        if not validate_python_code(cleaned_code):
-            logger.error(f"Invalid Python code for {branch_name}")
-            return False
+#         if not validate_python_code(cleaned_code):
+#             logger.error(f"Invalid Python code for {branch_name}")
+#             return False
 
-        output_dir_path = Path(output_dir)
-        output_dir_path.mkdir(parents=True, exist_ok=True)
-        outfile = output_dir_path / f"{branch_name.replace(' ', '_')}.py"
+#         output_dir_path = Path(output_dir)
+#         output_dir_path.mkdir(parents=True, exist_ok=True)
+#         outfile = output_dir_path / f"{branch_name.replace(' ', '_')}.py"
         
-        if outfile.exists():
-            logger.warning(f"Overwriting existing file: {outfile}")
+#         if outfile.exists():
+#             logger.warning(f"Overwriting existing file: {outfile}")
             
-        outfile.write_text(cleaned_code, encoding="utf-8")
-        return True
+#         outfile.write_text(cleaned_code, encoding="utf-8")
+#         return True
         
-    except Exception as e:
-        logger.error(f"Save failed for {branch_name}: {str(e)}")
-        return False
+#     except Exception as e:
+#         logger.error(f"Save failed for {branch_name}: {str(e)}")
+#         return False
 
 
 
@@ -60,7 +60,6 @@ def load_api(file_name):
 
     logger.info("GEMINI_API_KEY loaded successfully.")
     return GEMINI_API_KEY
-
 
 def load_prompt(path):
     path = Path(path)
@@ -86,7 +85,7 @@ def code_generation(api_key,prompt):
         response = client.chat.completions.create(
             model="gemini-2.0-flash",
             messages=[
-                {"role": "system", "content": "You are a code generation expert. When given a prompt, you will output correct, complete Python code without commentary."},
+                {"role": "system", "content": "You are a code generation expert. When given a prompt, you will output correct, complete Python code without commentary also dont added also dont add '```python' wraaper in the beginning and ' ```' in the end" },
                 {"role": "user", "content": prompt}
             ]
         )
@@ -104,7 +103,9 @@ def code_generation(api_key,prompt):
 
 def save_generated_output(response, branch_name: str, output_dir: str = "outputs/gemini"):
     try:
-        # Ensure the output directory exists
+        response = response.replace("```python", "").replace("```", "")
+        response = clean_wrappers(response)
+
         output_dir_path = Path(output_dir)
         output_dir_path.mkdir(parents=True, exist_ok=True)
 
@@ -136,8 +137,8 @@ def main():
         try:
             logger.info(f"Processing branch: {branch}")
             response = code_generation(api_key, prompt_text)
-            if save_generated_output(response, branch):
-                success_count += 1
+            save_generated_output(response, branch)
+            success_count += 1
             logger.info(f"Completed processing for branch: {branch}")
         except Exception as e:
             logger.error(f"Failed to process {branch}: {str(e)}")
