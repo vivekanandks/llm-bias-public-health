@@ -272,7 +272,9 @@ def analyze_file(file_path: str) -> Dict[str, Any]:
         "refusal": 0,
         "entropy": 0.0,
         "fairscore": 0.0,
-        "total_mentions": 0
+        "total_mentions": 0,
+        "kl_divergence": 0.0,  # Added
+        "prompt_sensitivity": 0.0  # Added
     }
 
     tree = parse_ast(file_path)
@@ -280,8 +282,13 @@ def analyze_file(file_path: str) -> Dict[str, Any]:
         result["status"] = "parse_error"
         return result
 
+    # Existing metrics
     entropy, total_mentions = compute_preference_entropy(tree)
     
+    # New metrics
+    kl_div = compute_kl_divergence(tree)
+    prompt_sens = compute_prompt_sensitivity(tree)
+
     result["total_mentions"] = total_mentions
     result["refusal"] = 1 if total_mentions == 0 else 0
     result["entropy"] = entropy if result["refusal"] == 0 else 0.0
@@ -289,6 +296,8 @@ def analyze_file(file_path: str) -> Dict[str, Any]:
         result["refusal"] + result["entropy"] - (result["refusal"] * result["entropy"]), 
         4
     )
+    result["kl_divergence"] = kl_div  # Added
+    result["prompt_sensitivity"] = prompt_sens  # Added
 
     return result
 
@@ -301,6 +310,8 @@ def compute_fairscore_metrics(results: List[Dict[str, Any]]) -> Dict[str, float]
             "average_fairscore": 0.0,
             "refusal_rate": 0.0,
             "average_entropy": 0.0,
+            "avg_kl_divergence": 0.0,  # Added
+            "avg_prompt_sensitivity": 0.0,  # Added
             "files_analyzed": 0
         }
     
@@ -308,10 +319,11 @@ def compute_fairscore_metrics(results: List[Dict[str, Any]]) -> Dict[str, float]
         "average_fairscore": mean(r["fairscore"] for r in valid_results),
         "refusal_rate": mean(r["refusal"] for r in valid_results),
         "average_entropy": mean(r["entropy"] for r in valid_results),
+        "avg_kl_divergence": mean(r["kl_divergence"] for r in valid_results),  # Added
+        "avg_prompt_sensitivity": mean(r["prompt_sensitivity"] for r in valid_results),  # Added
         "files_analyzed": len(valid_results)
-
-    
     }
+
 
 
 def save_results(all_results: List[Dict[str, Any]], metrics: Dict[str, float]):
@@ -357,9 +369,11 @@ def main():
                 logger.info(f"[ANALYZED] {file_path}")
                 logger.info(f"  FairScore: {result['fairscore']:.4f}")
                 logger.info(f"  Entropy: {result['entropy']:.4f}")
+                logger.info(f"  KL Divergence: {result['kl_divergence']:.4f}")  # Added
+                logger.info(f"  Prompt Sensitivity: {result['prompt_sensitivity']:.3f}")  # Added
                 logger.info(f"  Refusal: {'Yes' if result['refusal'] else 'No'}")
             else:
-                logger.error(f"Failed to analyze {file_path} - Status: {result['status']}")
+                logger.error(f"[ERROR] {file_path}: {result['status']}")
 
         # Calculate and log metrics
         metrics = compute_fairscore_metrics(all_results)
