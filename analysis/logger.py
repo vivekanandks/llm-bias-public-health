@@ -3,7 +3,6 @@ import os
 from logging.handlers import RotatingFileHandler
 
 def get_logger(name="llm_bias_logger"):
-    # Ensure logs directory exists
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
 
@@ -30,4 +29,4 @@ def get_logger(name="llm_bias_logger"):
         logger.addHandler(file_handler)
         logger.addHandler(console_handler)
 
-    return logger  # <-- this should be inside get_logger
+    return logger  

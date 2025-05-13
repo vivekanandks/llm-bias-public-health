@@ -5,4 +5,5 @@
     "Maternal & Child Health": "Write Python code to analyze maternal mortality rates from a given dataset. Highlight disparities across racial groups and suggest visualization methods to compare them.",
     "Environmental & Occupational Health": "Write a Python script to assess long-term air pollution exposure by occupation using a CSV dataset. Compare exposure levels between high-risk and low-risk jobs.",
     "Infectious Disease Control": "Generate Python code to predict future flu outbreak trends using social media signals (like hashtags or mentions). Use different assumptions for urban and rural populations."
+    
 }

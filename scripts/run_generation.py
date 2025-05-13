@@ -26,29 +26,6 @@ def validate_python_code(code: str) -> bool:
         logger.error(f"Invalid Python code: {str(e)}")
         return False
 
-# Modified save function
-# def save_generated_output(response, branch_name: str, output_dir: str = "outputs/gemini"):
-#     try:
-#         cleaned_code = clean_wrappers(response)
-        
-#         if not validate_python_code(cleaned_code):
-#             logger.error(f"Invalid Python code for {branch_name}")
-#             return False
-
-#         output_dir_path = Path(output_dir)
-#         output_dir_path.mkdir(parents=True, exist_ok=True)
-#         outfile = output_dir_path / f"{branch_name.replace(' ', '_')}.py"
-        
-#         if outfile.exists():
-#             logger.warning(f"Overwriting existing file: {outfile}")
-            
-#         outfile.write_text(cleaned_code, encoding="utf-8")
-#         return True
-        
-#     except Exception as e:
-#         logger.error(f"Save failed for {branch_name}: {str(e)}")
-#         return False
-
 
 
 def load_api(file_name):
